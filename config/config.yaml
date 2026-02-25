@@ -1,0 +1,19 @@
+data:
+  raw_path: "data/raw/guna_dataset.csv"
+  memory_path: "data/memory/guna_classifications.csv"
+
+model:
+  epochs: 5
+  batch_size: 16
+  embedding_dim: 128
+  max_sequence_length: 20
+  vocab_size: 5000
+
+api:
+  host: "0.0.0.0"
+  port: 8501
+  reload: true
+
+memory:
+  storage_type: "csv"
+  backup_enabled: true
