@@ -8,14 +8,19 @@ import pandas as pd
 from loguru import logger
 
 from core.classifier import GunaClassifier
+from core.decision import GunaDecisionEngine
 
 # Load config
 config_path = Path("config/config.yaml")
 with open(config_path, "r") as f:
     config = yaml.safe_load(f)
 
-# Global classifier instance
+# Global classifier instance (sklearn baseline, offline)
 classifier = None
+
+# Action-gating decision engine (LLM-backed). Created eagerly; the reasoner
+# itself is built lazily on first use, so the API starts without an API key.
+decision_engine = GunaDecisionEngine()
 
 class ClassificationRequest(BaseModel):
     text: str = Field(..., description="Input text (Sanskrit or English)")
@@ -31,6 +36,23 @@ class ClassificationResponse(BaseModel):
 class HealthResponse(BaseModel):
     status: str
     model_info: Dict[str, Any]
+
+class ActionRequest(BaseModel):
+    command: str = Field(..., description="What the user asked the agent to do")
+    context: str = Field("", description="The real-world situation right now")
+
+class ActionResponse(BaseModel):
+    command: str
+    context: str
+    guna: str
+    decision: str
+    should_act: bool
+    confidence: float
+    rationale: str
+    safe_default_applied: bool
+    model: str
+    decision_emoji: str
+    guna_emoji: str
 
 app = FastAPI(
     title="Sanskrit Guna Classifier API (Baseline)",
@@ -78,16 +100,14 @@ async def classify(request: ClassificationRequest):
     except Exception as e:
         logger.error(f"Classification error: {e}")
         raise HTTPException(status_code=500, detail=str(e))
-from pathlib import Path
-import yaml
 
-CONFIG_PATH = Path("config/config.yaml")
+@app.post("/should-i-act", response_model=ActionResponse, tags=["Decision"])
+async def should_i_act(request: ActionRequest):
+    """Gate a user command against its context.
 
-if not CONFIG_PATH.exists():
-    raise RuntimeError(f"Config file not found at {CONFIG_PATH}")
-
-with CONFIG_PATH.open("r") as f:
-    config = yaml.safe_load(f)
-
-if not isinstance(config, dict):
-    raise RuntimeError(f"Config could not be loaded as dict. Got: {config!r}")
+    Returns the guna of the action-in-context plus a safety-floored decision
+    (proceed / clarify / refuse). The engine fails safe to 'refuse' if a
+    reliable judgment cannot be obtained.
+    """
+    result = decision_engine.decide(request.command, request.context)
+    return ActionResponse(**result.to_dict())
