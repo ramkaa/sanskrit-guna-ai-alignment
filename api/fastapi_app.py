@@ -93,6 +93,11 @@ async def root():
     return FileResponse(Path("static/index.html"))
 
 
+@app.get("/simulation", tags=["Root"])
+async def simulation():
+    return FileResponse(Path("static/simulation.html"))
+
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
