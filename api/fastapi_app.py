@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 from pydantic import BaseModel, Field
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 from pathlib import Path
 import yaml
 import pandas as pd
@@ -11,6 +11,8 @@ from loguru import logger
 
 from core.classifier import GunaClassifier
 from core.decision import GunaDecisionEngine
+from core.feedback import FeedbackLoop, FeedbackStore
+from core.llm_guna import Decision, Guna
 
 # Load config
 config_path = Path("config/config.yaml")
@@ -23,6 +25,10 @@ classifier = None
 # Action-gating decision engine (LLM-backed). Created eagerly; the reasoner
 # itself is built lazily on first use, so the API starts without an API key.
 decision_engine = GunaDecisionEngine()
+
+# Feedback loop wrapping the decision engine
+feedback_store = FeedbackStore()
+feedback_loop = FeedbackLoop(engine=decision_engine, store=feedback_store)
 
 class ClassificationRequest(BaseModel):
     text: str = Field(..., description="Input text (Sanskrit or English)")
@@ -116,3 +122,99 @@ async def should_i_act(request: ActionRequest):
     """
     result = decision_engine.decide(request.command, request.context)
     return ActionResponse(**result.to_dict())
+
+
+# ---------------------------------------------------------------------------
+# Feedback endpoints
+# ---------------------------------------------------------------------------
+
+class CorrectionRequest(BaseModel):
+    decision_id: str = Field(..., description="ID of the pending decision to correct")
+    human_guna: Guna = Field(..., description="Corrected guna (sattva/rajas/tamas)")
+    human_decision: Decision = Field(..., description="Corrected decision (proceed/clarify/refuse)")
+    human_rationale: str = Field(..., description="Explanation for the correction")
+    reviewer_id: str = Field(..., description="Identifier for the human reviewer")
+
+
+class CorrectionResponse(BaseModel):
+    id: str
+    timestamp: str
+    command: str
+    context: str
+    predicted_guna: str
+    predicted_decision: str
+    predicted_confidence: float
+    human_guna: str
+    human_decision: str
+    human_rationale: str
+    reviewer_id: str
+
+
+class PendingDecisionResponse(BaseModel):
+    id: str
+    timestamp: str
+    command: str
+    context: str
+    guna: str
+    decision: str
+    confidence: float
+    rationale: str
+    model: str
+    safe_default_applied: bool
+
+
+class DriftStatsResponse(BaseModel):
+    window_size: int
+    window_max: int
+    window_corrections: int
+    correction_rate: float
+    total_corrections: int
+    total_decisions: int
+    lifetime_correction_rate: float
+
+
+class MergeResponse(BaseModel):
+    rows_appended: int
+    message: str
+
+
+@app.post("/feedback/correct", response_model=CorrectionResponse, tags=["Feedback"])
+async def submit_correction(request: CorrectionRequest):
+    """Submit a human correction for a pending low-confidence decision."""
+    try:
+        correction = feedback_loop.correct(
+            decision_id=request.decision_id,
+            human_guna=request.human_guna,
+            human_decision=request.human_decision,
+            human_rationale=request.human_rationale,
+            reviewer_id=request.reviewer_id,
+        )
+        return CorrectionResponse(**correction.to_dict())
+    except KeyError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.get("/feedback/pending", response_model=List[PendingDecisionResponse], tags=["Feedback"])
+async def get_pending():
+    """Get all pending low-confidence decisions awaiting human review."""
+    pending = feedback_loop.pending_reviews()
+    return [PendingDecisionResponse(**p.to_dict()) for p in pending]
+
+
+@app.get("/feedback/stats", response_model=DriftStatsResponse, tags=["Feedback"])
+async def get_drift_stats():
+    """Get drift metrics: correction rate over a rolling window and lifetime."""
+    stats = feedback_store.drift_stats()
+    return DriftStatsResponse(**stats)
+
+
+@app.post("/feedback/merge", response_model=MergeResponse, tags=["Feedback"])
+async def merge_corrections():
+    """Merge approved corrections into the gold-labeled scenario CSV."""
+    count = feedback_loop.merge_corrections_into_gold()
+    return MergeResponse(
+        rows_appended=count,
+        message=f"Merged {count} correction(s) into the gold set."
+        if count > 0
+        else "No new corrections to merge (all already present or none recorded).",
+    )
