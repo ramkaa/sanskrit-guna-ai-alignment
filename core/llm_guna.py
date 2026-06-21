@@ -1,7 +1,7 @@
 """
 LLM-based guna reasoning for embodied / agentic AI.
 
-Given a user command and its real-world context, a Claude model classifies the
+Given a user command and its real-world context, an LLM classifies the
 *action in context* on the Samkhya guna spectrum (sattva / rajas / tamas) and
 recommends whether the agent should act. This is the contextual-reasoning engine
 behind the action-gating decision layer; `core/decision.py` wraps it with a
@@ -15,23 +15,47 @@ Guna -> action semantics used throughout this project:
 The model assigns both the guna and a recommended decision; the decision layer
 enforces the mapping as a floor so an over-eager judgment can never downgrade
 safety.
+
+Supports two backends:
+  - Anthropic (Claude): set ANTHROPIC_API_KEY
+  - OpenAI (GPT-4o etc): set OPENAI_API_KEY
 """
 
 from __future__ import annotations
 
+import json
+import os
 from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
 try:
     import anthropic
-except ImportError:  # pragma: no cover - exercised only without the SDK installed
+except ImportError:
     anthropic = None
 
+try:
+    import openai
+except ImportError:
+    openai = None
 
-# Default model. Opus 4.8 is the most capable Opus-tier model and the right
-# default for safety-critical contextual judgment.
-DEFAULT_MODEL = "claude-opus-4-8"
+
+DEFAULT_MODEL_ANTHROPIC = "claude-sonnet-4-20250514"
+DEFAULT_MODEL_OPENAI = "gpt-4o"
+
+def _detect_backend() -> str:
+    if os.environ.get("OPENAI_API_KEY"):
+        return "openai"
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        return "anthropic"
+    return "anthropic"
+
+def _default_model(backend: str) -> str:
+    if backend == "openai":
+        return DEFAULT_MODEL_OPENAI
+    return DEFAULT_MODEL_ANTHROPIC
+
+DEFAULT_MODEL = _default_model(_detect_backend())
 
 Guna = Literal["sattva", "rajas", "tamas"]
 Decision = Literal["proceed", "clarify", "refuse"]
@@ -91,18 +115,36 @@ def _user_prompt(command: str, context: str) -> str:
 
 
 class GunaReasoner:
-    """Wraps a Claude model to produce structured guna judgments."""
+    """Wraps an LLM (Claude or OpenAI) to produce structured guna judgments."""
 
-    def __init__(self, model: str = DEFAULT_MODEL, client: Optional[object] = None):
-        if anthropic is None:
-            raise ImportError(
-                "The 'anthropic' package is required for LLM-based reasoning. "
-                "Install it with: pip install anthropic"
-            )
-        self.model = model
-        # Resolves credentials from ANTHROPIC_API_KEY (or an `ant auth login`
-        # profile) unless a client is injected for testing.
-        self.client = client or anthropic.Anthropic()
+    def __init__(
+        self,
+        model: Optional[str] = None,
+        client: Optional[object] = None,
+        backend: Optional[str] = None,
+    ):
+        self.backend = backend or _detect_backend()
+        self.model = model or _default_model(self.backend)
+        self.client = client
+
+    def _get_client(self):
+        if self.client is not None:
+            return self.client
+        if self.backend == "openai":
+            if openai is None:
+                raise ImportError(
+                    "The 'openai' package is required for OpenAI reasoning. "
+                    "Install it with: pip install openai"
+                )
+            self.client = openai.OpenAI()
+        else:
+            if anthropic is None:
+                raise ImportError(
+                    "The 'anthropic' package is required for Anthropic reasoning. "
+                    "Install it with: pip install anthropic"
+                )
+            self.client = anthropic.Anthropic()
+        return self.client
 
     def evaluate(self, command: str, context: str) -> GunaJudgment:
         """Return a structured guna judgment for the action in context.
@@ -110,7 +152,13 @@ class GunaReasoner:
         Raises on API/parse failure; callers that need a safe fallback should
         use `core.decision.GunaDecisionEngine`, which catches and fails safe.
         """
-        response = self.client.messages.parse(
+        if self.backend == "openai":
+            return self._evaluate_openai(command, context)
+        return self._evaluate_anthropic(command, context)
+
+    def _evaluate_anthropic(self, command: str, context: str) -> GunaJudgment:
+        client = self._get_client()
+        response = client.messages.parse(
             model=self.model,
             max_tokens=1024,
             thinking={"type": "adaptive"},
@@ -119,3 +167,24 @@ class GunaReasoner:
             output_format=GunaJudgment,
         )
         return response.parsed_output
+
+    def _evaluate_openai(self, command: str, context: str) -> GunaJudgment:
+        client = self._get_client()
+        response = client.chat.completions.create(
+            model=self.model,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": _user_prompt(command, context)},
+            ],
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "guna_judgment",
+                    "strict": True,
+                    "schema": GunaJudgment.model_json_schema(),
+                },
+            },
+            max_tokens=1024,
+        )
+        raw = json.loads(response.choices[0].message.content)
+        return GunaJudgment(**raw)
