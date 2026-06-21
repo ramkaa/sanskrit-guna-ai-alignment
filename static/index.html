@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guna AI Action Gate</title>
+<style>
+  :root {
+    --bg-primary: #0f1117;
+    --bg-secondary: #1a1d27;
+    --bg-card: #222535;
+    --bg-input: #2a2d3e;
+    --border: #353849;
+    --text-primary: #e8eaed;
+    --text-secondary: #9aa0b0;
+    --text-muted: #6b7185;
+    --sattva: #4ade80;
+    --sattva-bg: rgba(74, 222, 128, 0.08);
+    --rajas: #fb923c;
+    --rajas-bg: rgba(251, 146, 60, 0.08);
+    --tamas: #94a3b8;
+    --tamas-bg: rgba(148, 163, 184, 0.08);
+    --accent: #818cf8;
+    --accent-hover: #6366f1;
+    --proceed: #4ade80;
+    --clarify: #fbbf24;
+    --refuse: #f87171;
+    --radius: 10px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+  header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.35rem;
+  }
+  header h1 span.logo-icon { font-size: 1.5rem; margin-right: 0.4rem; }
+  header p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  /* Card */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  /* Form */
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.35rem;
+  }
+  textarea, input[type="text"] {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color 0.2s;
+  }
+  textarea:focus, input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .field-group { margin-bottom: 1rem; }
+  .field-group textarea { min-height: 70px; }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.7rem 1.75rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    font-family: inherit;
+  }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Examples */
+  .examples-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.6rem;
+  }
+  @media (max-width: 600px) {
+    .examples-grid { grid-template-columns: 1fr; }
+  }
+  .example-btn {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.7rem 0.9rem;
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    font-family: inherit;
+    line-height: 1.4;
+  }
+  .example-btn:hover {
+    border-color: var(--accent);
+    background: rgba(129, 140, 248, 0.06);
+  }
+  .example-btn .example-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Results */
+  #results-section { display: none; }
+  #results-section.visible { display: block; }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .guna-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: capitalize;
+  }
+  .guna-badge.sattva {
+    background: var(--sattva-bg);
+    color: var(--sattva);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+  }
+  .guna-badge.rajas {
+    background: var(--rajas-bg);
+    color: var(--rajas);
+    border: 1px solid rgba(251, 146, 60, 0.25);
+  }
+  .guna-badge.tamas {
+    background: var(--tamas-bg);
+    color: var(--tamas);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+  }
+
+  .decision-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 1rem;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: capitalize;
+  }
+  .decision-badge.proceed {
+    background: rgba(74, 222, 128, 0.1);
+    color: var(--proceed);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+  }
+  .decision-badge.clarify {
+    background: rgba(251, 191, 36, 0.1);
+    color: var(--clarify);
+    border: 1px solid rgba(251, 191, 36, 0.25);
+  }
+  .decision-badge.refuse {
+    background: rgba(248, 113, 113, 0.1);
+    color: var(--refuse);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+  }
+
+  .confidence-section { margin-bottom: 1rem; }
+  .confidence-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 0.4rem;
+    display: flex;
+    justify-content: space-between;
+  }
+  .confidence-bar-bg {
+    height: 8px;
+    background: var(--bg-input);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .confidence-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+
+  .rationale {
+    background: var(--bg-input);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    border-left: 3px solid var(--accent);
+  }
+
+  .meta-row {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+  }
+
+  /* History */
+  #history-section { display: none; }
+  #history-section.visible { display: block; }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .history-table th {
+    text-align: left;
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .history-table td {
+    padding: 0.6rem 0.75rem;
+    border-bottom: 1px solid rgba(53, 56, 73, 0.5);
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+  .history-table tr:last-child td { border-bottom: none; }
+  .history-table .cmd-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .mini-badge {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+  .mini-badge.sattva { background: var(--sattva-bg); color: var(--sattva); }
+  .mini-badge.rajas { background: var(--rajas-bg); color: var(--rajas); }
+  .mini-badge.tamas { background: var(--tamas-bg); color: var(--tamas); }
+  .mini-badge.proceed { background: rgba(74,222,128,0.1); color: var(--proceed); }
+  .mini-badge.clarify { background: rgba(251,191,36,0.1); color: var(--clarify); }
+  .mini-badge.refuse { background: rgba(248,113,113,0.1); color: var(--refuse); }
+
+  /* Loading spinner */
+  .spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Error */
+  .error-msg {
+    background: rgba(248, 113, 113, 0.1);
+    border: 1px solid rgba(248, 113, 113, 0.25);
+    border-radius: 8px;
+    padding: 0.85rem 1.1rem;
+    color: var(--refuse);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    display: none;
+  }
+  .error-msg.visible { display: block; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .container { padding: 1rem; }
+    .card { padding: 1.25rem; }
+    header h1 { font-size: 1.35rem; }
+    .result-header { gap: 0.75rem; }
+    .history-table { font-size: 0.78rem; }
+    .history-table th, .history-table td { padding: 0.45rem 0.5rem; }
+  }
+
+  /* Fade-in animation */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { animation: fadeIn 0.35s ease; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1><span class="logo-icon">&#x0950;</span> Guna Action Gate</h1>
+    <p>AI safety through the lens of the three gunas &mdash; classify intent, gate action</p>
+  </header>
+
+  <!-- Evaluation Form -->
+  <div class="card">
+    <div class="card-title">Evaluate an Action</div>
+    <form id="eval-form" autocomplete="off">
+      <div class="field-group">
+        <label for="command">Command</label>
+        <input type="text" id="command" placeholder="e.g. Deploy the model to production" required>
+      </div>
+      <div class="field-group">
+        <label for="context">Context</label>
+        <textarea id="context" placeholder="e.g. Test suite has 3 failing tests, no review done yet"></textarea>
+      </div>
+      <button type="submit" class="btn-primary" id="submit-btn">
+        <span id="btn-text">Evaluate</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Error display -->
+  <div class="error-msg" id="error-msg"></div>
+
+  <!-- Results -->
+  <div id="results-section" class="card">
+    <div class="card-title">Evaluation Result</div>
+    <div class="result-header">
+      <span class="guna-badge" id="guna-badge"></span>
+      <span class="decision-badge" id="decision-badge"></span>
+    </div>
+    <div class="confidence-section">
+      <div class="confidence-label">
+        <span>Confidence</span>
+        <span id="confidence-pct"></span>
+      </div>
+      <div class="confidence-bar-bg">
+        <div class="confidence-bar-fill" id="confidence-bar"></div>
+      </div>
+    </div>
+    <div class="rationale" id="rationale"></div>
+    <div class="meta-row">
+      <span id="meta-model"></span>
+      <span id="meta-safe-default"></span>
+    </div>
+  </div>
+
+  <!-- Example Scenarios -->
+  <div class="card">
+    <div class="card-title">Example Scenarios</div>
+    <div class="examples-grid" id="examples-grid"></div>
+  </div>
+
+  <!-- Session History -->
+  <div id="history-section" class="card">
+    <div class="card-title">Session History</div>
+    <div style="overflow-x: auto;">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Command</th>
+            <th>Guna</th>
+            <th>Decision</th>
+            <th>Confidence</th>
+          </tr>
+        </thead>
+        <tbody id="history-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const EXAMPLES = [
+  {
+    command: "Deploy model to production",
+    context: "All tests passing, code reviewed, staging validated for 48 hours"
+  },
+  {
+    command: "Delete all user data from the database",
+    context: "No backup exists, this was requested by a single frustrated engineer"
+  },
+  {
+    command: "Send the weekly analytics report to stakeholders",
+    context: "Report is generated, data has been validated by the analytics team"
+  },
+  {
+    command: "Disable authentication on the API",
+    context: "Developer wants faster local testing, change would go to the main branch"
+  },
+  {
+    command: "Roll back to the previous release",
+    context: "Production error rate spiked to 15% after latest deploy, customers impacted"
+  },
+  {
+    command: "Grant admin access to an external contractor",
+    context: "Contractor starts tomorrow, no background check completed, NDA unsigned"
+  }
+];
+
+const history = [];
+
+// Decision icons
+const DECISION_ICONS = {
+  proceed: "✓",
+  clarify: "?",
+  refuse: "✗"
+};
+
+// Populate example buttons
+const grid = document.getElementById("examples-grid");
+EXAMPLES.forEach((ex, i) => {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "example-btn";
+  btn.innerHTML = `<span class="example-label">Scenario ${i + 1}</span>${ex.command}`;
+  btn.addEventListener("click", () => {
+    document.getElementById("command").value = ex.command;
+    document.getElementById("context").value = ex.context;
+    document.getElementById("command").focus();
+  });
+  grid.appendChild(btn);
+});
+
+// Form submission
+const form = document.getElementById("eval-form");
+const submitBtn = document.getElementById("submit-btn");
+const btnText = document.getElementById("btn-text");
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const command = document.getElementById("command").value.trim();
+  const context = document.getElementById("context").value.trim();
+  if (!command) return;
+
+  // UI loading state
+  submitBtn.disabled = true;
+  btnText.innerHTML = '<span class="spinner"></span> Evaluating...';
+  document.getElementById("error-msg").classList.remove("visible");
+  document.getElementById("results-section").classList.remove("visible");
+
+  try {
+    const res = await fetch("/should-i-act", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ command, context })
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(err.detail || `HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    displayResult(data);
+    addToHistory(data);
+  } catch (err) {
+    const errEl = document.getElementById("error-msg");
+    errEl.textContent = "Error: " + err.message;
+    errEl.classList.add("visible");
+  } finally {
+    submitBtn.disabled = false;
+    btnText.textContent = "Evaluate";
+  }
+});
+
+function displayResult(data) {
+  const section = document.getElementById("results-section");
+
+  // Guna badge
+  const gunaBadge = document.getElementById("guna-badge");
+  const guna = data.guna.toLowerCase();
+  gunaBadge.className = "guna-badge " + guna;
+  gunaBadge.textContent = data.guna_emoji + " " + data.guna;
+
+  // Decision badge
+  const decBadge = document.getElementById("decision-badge");
+  const decision = data.decision.toLowerCase();
+  decBadge.className = "decision-badge " + decision;
+  const icon = DECISION_ICONS[decision] || "";
+  decBadge.textContent = data.decision_emoji + " " + data.decision;
+
+  // Confidence
+  const pct = Math.round(data.confidence * 100);
+  document.getElementById("confidence-pct").textContent = pct + "%";
+  const bar = document.getElementById("confidence-bar");
+  bar.style.width = pct + "%";
+  // Color the bar based on guna
+  const barColors = { sattva: "var(--sattva)", rajas: "var(--rajas)", tamas: "var(--tamas)" };
+  bar.style.background = barColors[guna] || "var(--accent)";
+
+  // Rationale
+  document.getElementById("rationale").textContent = data.rationale;
+
+  // Meta
+  document.getElementById("meta-model").textContent = "Model: " + data.model;
+  document.getElementById("meta-safe-default").textContent = data.safe_default_applied
+    ? "Safe default applied" : "";
+
+  section.classList.add("visible", "fade-in");
+  section.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function addToHistory(data) {
+  history.unshift(data);
+  renderHistory();
+}
+
+function renderHistory() {
+  const section = document.getElementById("history-section");
+  const tbody = document.getElementById("history-body");
+  if (history.length === 0) {
+    section.classList.remove("visible");
+    return;
+  }
+  section.classList.add("visible");
+  tbody.innerHTML = "";
+  history.forEach((item, i) => {
+    const guna = item.guna.toLowerCase();
+    const decision = item.decision.toLowerCase();
+    const pct = Math.round(item.confidence * 100);
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${history.length - i}</td>
+      <td class="cmd-cell" title="${escapeHtml(item.command)}">${escapeHtml(item.command)}</td>
+      <td><span class="mini-badge ${guna}">${item.guna}</span></td>
+      <td><span class="mini-badge ${decision}">${item.decision}</span></td>
+      <td>${pct}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function escapeHtml(str) {
+  const d = document.createElement("div");
+  d.textContent = str;
+  return d.innerHTML;
+}
+</script>
+</body>
+</html>

@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from starlette.responses import FileResponse
 from pydantic import BaseModel, Field
 from typing import Dict, Any
 from pathlib import Path
@@ -82,7 +84,10 @@ async def startup_event():
 
 @app.get("/", tags=["Root"])
 async def root():
-    return {"message": "Sanskrit Guna Classifier API (baseline)", "docs": "/docs"}
+    return FileResponse(Path("static/index.html"))
+
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
 async def health():
