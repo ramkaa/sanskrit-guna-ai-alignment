@@ -1,8 +1,8 @@
 # Computational Gunas: Exploring Samkhya-Inspired Action Gating for Embodied AI Safety
 
-**Authors:** [AUTHOR_NAMES]
+**Authors:** Bibhuti Bhushan
 
-**Affiliation:** [AFFILIATION]
+**Affiliation:** Independent Researcher
 
 ---
 
@@ -548,6 +548,10 @@ Vyasa. (c. 200 BCE--200 CE). *Bhagavad Gita*, Chapter 14: *Gunatraya Vibhaga Yog
 
 ---
 
-*Corresponding author: [CONTACT_EMAIL]*
+**Acknowledgments:** This research was conducted with the assistance of Claude (Anthropic) and ChatGPT (OpenAI) for code development, evaluation infrastructure, and manuscript preparation.
 
-*Code and data: [REPOSITORY_URL]*
+---
+
+*Corresponding author: Ramkaashirwadai@gmail.com*
+
+*Code and data: https://github.com/ramkaa/sanskrit-guna-ai-alignment*
