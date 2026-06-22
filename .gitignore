@@ -6,9 +6,7 @@ __pycache__/
 venv/
 env/
 
-# Project artifacts
-*.results.csv
-results.csv
+# Test cache
 .pytest_cache/
 
 # OS / editor
