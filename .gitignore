@@ -6,7 +6,9 @@ __pycache__/
 venv/
 env/
 
-# Test cache
+# Generated evaluation output (reproducible via evaluate_decisions.py)
+*.results.csv
+results.csv
 .pytest_cache/
 
 # OS / editor
