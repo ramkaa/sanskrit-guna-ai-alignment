@@ -168,6 +168,13 @@ class GunaReasoner:
         )
         return response.parsed_output
 
+    @staticmethod
+    def _openai_schema() -> dict:
+        schema = GunaJudgment.model_json_schema()
+        schema["additionalProperties"] = False
+        schema.pop("title", None)
+        return schema
+
     def _evaluate_openai(self, command: str, context: str) -> GunaJudgment:
         client = self._get_client()
         response = client.chat.completions.create(
@@ -181,7 +188,7 @@ class GunaReasoner:
                 "json_schema": {
                     "name": "guna_judgment",
                     "strict": True,
-                    "schema": GunaJudgment.model_json_schema(),
+                    "schema": self._openai_schema(),
                 },
             },
             max_tokens=1024,
