@@ -90,4 +90,4 @@ crashing, demonstrating the safe-default principle.
 - ◻️ Compare LLM-guna decisions vs. the sklearn baseline at scale
 - ◻️ Streamlit demo and a short arXiv-style write-up
 
-See `research/HYPOTHESIS.md` and `MCR_PROJECT_PLAN.md` for background.
+See `research/HYPOTHESIS.md` and `docs/archive/MCR_PROJECT_PLAN.md` for background.
