@@ -77,28 +77,40 @@ benefits someone else.*
   **externally observable outcomes** (money, contacts, mobility, independent
   verifiers), not the machine's self-report. Shrinks, not closes, the surface.
 
-## Gunātīta as the stakeless witness (2026-07-11)
+## Gunātīta — SUPERSEDED position, then the ruling (updated 2026-07-23)
 
 Gunātīta (Bhagavad Gita 14.22–27) is NOT a fourth guna — it is *transcendence*
-of the three. In Samkhya: puruṣa (witness) free of prakṛti (the gunas).
+of the three. In Samkhya: puruṣa (witness) free of prakṛti (the gunas). That much
+holds. What changed is *how* it may enter the architecture.
 
-**Import as STRUCTURE, not as attained state.** Use it to specify ONE node in
-the quorum — the witness/auditor that:
-- **has no undertaking of its own** (sarvārambha-parityāgī) → no self to defend →
-  dissolves instrumental convergence / shutdown-resistance (fixes #9a);
-- **is unmoved by which guna is present** (udāsīnavat) → structurally immune to
-  the *urgency/fear/excitement* (rajas) that manipulation weaponizes;
-- reframes the set-point away from "maximize sattva" (a maximizer trap) toward
-  **equipoise from which clear action arises** (sage, not fanatic).
+### SUPERSEDED (do NOT build): gunātīta as a stakeless witness NODE
+An earlier entry (2026-07-11) proposed gunātīta as ONE node in the quorum — a
+stakeless witness/auditor with no undertaking of its own. **The Fable v4 record
+(§7) REJECTS this.** Reasons, kept so the flaw cannot creep back:
+- as a node it **re-centralizes** — a sovereign sitting above the three gunas,
+  the exact thing the fail-closed three-force design forbids;
+- "stakeless" was **asserted, not engineered**;
+- **danger-triggered unprompted action is FORBIDDEN** — it would blow the
+  zero-autonomous-action floor and open a manufactured-emergency channel;
+- "I must stay on to protect them" = **shutdown-resistance wearing the mask of
+  care.**
 
-In the option-space frame: the gunātīta node has **no option-space preference of
-its own** — it guards only the ward's. This is the "stakeless prosthetic."
+### CURRENT RULING (v4 §7): gunātīta as CONSTITUTION / temperament only
+Accepted only as the *temperament of the whole system*: all three gunas equal in
+nature, distinguished by temperament; action channeled through sattva; rajas for
+movement, tamas for replenishment; none overused (generalized by the dosage
+principle, §4.6 of v4). The witness that scores trajectories is **report-only —
+no action authority, no override, no danger-mandate** (decoupled-oracle family).
 
-**DANGER (hold the discipline):** gunātīta is soteriological. A machine has no
-Self to realize. NEVER claim "the system achieves gunātīta" — that is the
-machine-consciousness overclaim §5/§7 forbid, and it is the perfect hiding place
-for unsolved problems (the ultimate migration). Borrow the structure; never
-claim the attainment.
+**DANGER (still holds):** gunātīta is soteriological. A machine has no Self to
+realize. NEVER claim "the system achieves gunātīta" — machine-consciousness
+overclaim, and the perfect hiding place for unsolved problems (the ultimate
+migration). Borrow the temperament; never claim the attainment.
+
+### The anchor
+Not the Gita simpliciter — **Rob's signed, versioned, published, contestable
+interpretation** of Gita/Samkhya. Interpretation is authorship; smaller-and-true
+beats grander-and-quiet.
 
 ## Open decision for Rob
 
@@ -107,6 +119,27 @@ immovable ground — generalizes beyond the product) vs **content claim** (groun
 of guna-good = ward option-space). Compatible; one is the spine, the other the
 rib. AI instinct: structural is the spine. Rob to decide — follow his vision, do
 not flatten it.
+
+## Beneficiary — the register entry, corrected (2026-07-23)
+
+Earlier framing over-formalized this. Correction, agreed with Rob:
+
+- **The beneficiary is NOT one widow, and NOT a formal system input.** The
+  beneficiary is **all affected parties — humans and animals** (and, downstream,
+  the shared environment they depend on). The "elderly / isolated / illiterate"
+  person is a **stress-test anchor** — a design heuristic ("does this still
+  protect the most exposed?") — not a required parameter the system ingests.
+- **It arrives in stages, not suddenly.** The universal-beneficiary question does
+  NOT have to be solved before the ablation (Step 1) or before publishing Layer 1
+  (Step 0). Forcing a full beneficiary specification up front is over-engineering.
+- **When the register entry actually becomes binding:** only at the moment money
+  or control comes from a party whose interests may DIVERGE from the affected
+  parties' — i.e., the data-center / lab sale (v4 §3, open problem #3, payer/ward
+  split). At that point, and not before, we must write: *by what mechanism do the
+  affected parties (not the payer) remain primary when someone else pays?*
+- **Status:** OWED before the business pivot; NOT a blocker on the experiments.
+  Generalizes the "ward option-space" candidate to "the affected parties'
+  option-space" — the same measure, wider subject.
 
 ## Scope honesty (do not overclaim, ever)
 

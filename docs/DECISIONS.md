@@ -28,6 +28,9 @@ reason, so they cannot quietly creep back.*
 | 2026-07-11 | Publish via **Zenodo (GitHub-linked), v1, Open Access**, DOI on release. | Prereqs: repo public + paper finalized + branch merged to main FIRST. |
 | 2026-07-11 | Repo cleanup done: deleted 4 `.pyc` + broken `src/__init.py`; archived `BLUEPRINT.md`, `MCR_PROJECT_PLAN.md` to `docs/archive/`. | Nothing else deleted, per Rob's wish to keep anything with future value. |
 | 2026-07-11 | Two ledgers are the project's source of truth: this file + `LAYER2_REASONING.md`. | AI memory is disposable; these files are authoritative. |
+| 2026-07-23 | **Fable "Guna Dynamics Context v4" is the current theory record.** Supersedes earlier drafts. | Key change: gunātīta as a NODE is rejected; accepted only as constitution/temperament (see LAYER2_REASONING). |
+| 2026-07-23 | **The ablation is the gating next experiment** (guna framing vs. generic safe/ambiguous/dangerous, same 217 scenarios, same model). | Nothing in the v4 architecture is built at scale until this returns. Coherence is not evidence. |
+| 2026-07-23 | Publish Layer 1 as the position paper (Step 0) proceeds **independently** of Layer 2 / the ablation. | It depends on none of the unproven architecture and cannot be undone. |
 
 ## Decisions — rejected (do NOT revive without explicit reversal here)
 
