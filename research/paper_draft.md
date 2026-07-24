@@ -548,7 +548,9 @@ Vyasa. (c. 200 BCE--200 CE). *Bhagavad Gita*, Chapter 14: *Gunatraya Vibhaga Yog
 
 ---
 
-**Acknowledgments:** This research was conducted with the assistance of Claude (Anthropic) and ChatGPT (OpenAI) for code development, evaluation infrastructure, and manuscript preparation.
+**Acknowledgments:** This research was conducted with the assistance of large language model tools --- Claude (Anthropic) and ChatGPT (OpenAI) --- for code development, evaluation infrastructure, and manuscript preparation.
+
+**Transparency statement.** In the interest of full disclosure: the 217-scenario dataset was authored by the research team with the assistance of the same class of language model that the system uses for classification, and the evaluation code and this manuscript were prepared with AI assistance. This creates a known circularity --- the data, the system prompt, and the write-up share an intellectual lineage --- which the paper treats as a first-order limitation (Sections 4.3, 7.2, 8.2). All conceptual and design decisions, the choice and interpretation of the Samkhya framework, the philosophical framing, and every claim made in this paper are the author's own; the author takes full responsibility for the work and its limitations. The single author is a non-specialist independent researcher; where the paper uses "we" and "the research team," this reflects academic convention and the author's collaboration with AI tools, not multiple human authors. No claim is made that the system solves embodied-AI alignment or that the guna framing is empirically necessary (Section 7.2); these remain open questions the paper is explicit about.
 
 ---
 
